@@ -1,13 +1,28 @@
 import React from "react";
-import { StyleSheet, Text, View, SafeAreaView } from "react-native";
+import { StyleSheet, Text, View, SafeAreaView, Dimensions } from "react-native";
+import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
 
 export default function ExploreScreen() {
+  const initialRegion = {
+    latitude: 39.8283,
+    longitude: -98.5795,
+    latitudeDelta: 30,
+    longitudeDelta: 30,
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <Text style={styles.title}>Explore around</Text>
         <Text style={styles.subtitle}>Fine restourant and atrractions</Text>
-        <Text style={styles.comingSoon}>Update of map function</Text>
+      </View>
+
+      <View style={styles.mapContainer}>
+        <MapView
+          style={styles.map}
+          provider={PROVIDER_GOOGLE}
+          initialRegion={initialRegion}
+        />
       </View>
     </SafeAreaView>
   );
@@ -35,10 +50,12 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     color: "#4a4a4a",
   },
-  comingSoon: {
-    fontSize: 14,
-    fontStyle: "italic",
-    marginTop: 20,
-    color: "#888",
+  mapContainer: {
+    flex: 1,
+    overflow: "hidden",
+  },
+  map: {
+    width: Dimensions.get("window").width,
+    height: "100%",
   },
 });
