@@ -1,19 +1,38 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, SafeAreaView, Dimensions } from "react-native";
-import MapView, { PROVIDER_GOOGLE, Marker, Callout } from "react-native-maps";
+import {
+  StyleSheet,
+  Text,
+  View,
+  SafeAreaView,
+  Dimensions,
+  TouchableOpacity,
+} from "react-native";
+import MapView, {
+  PROVIDER_GOOGLE,
+  Marker,
+  Callout,
+  Circle,
+} from "react-native-maps";
 import * as Location from "expo-location";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function ExploreScreen() {
   const [location, setLocation] = useState<Location.LocationObject | null>(
     null
   );
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [travelMode, setTravelMode] = useState<"car" | "walking">("car");
   const [region, setRegion] = useState({
     latitude: 39.8283, // instant value and place
     longitude: -98.5795,
     latitudeDelta: 30,
     longitudeDelta: 30,
   });
+
+  const travelRadius = {
+    car: 30000,
+    walking: 3000,
+  };
 
   const attractions = [
     {
@@ -42,6 +61,10 @@ export default function ExploreScreen() {
     },
   ];
 
+  const toggleTravelMode = () => {
+    setTravelMode(travelMode === "car" ? "walking" : "car");
+  };
+
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -57,19 +80,65 @@ export default function ExploreScreen() {
         setRegion({
           latitude: location.coords.latitude,
           longitude: location.coords.longitude,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
+          latitudeDelta: travelMode === "car" ? 0.5 : 0.05,
+          longitudeDelta: travelMode === "car" ? 0.5 : 0.05,
         });
       }
     })();
-  }, []);
+  }, [travelMode]);
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.headerContainer}>
         <Text style={styles.title}>Explore around</Text>
-        <Text style={styles.subtitle}>Fine restourant and atrractions</Text>
+        <Text style={styles.subtitle}>
+          {travelMode === "car" ? "Driving Travel mode" : "Walking Travel mode"}
+        </Text>
         {errorMsg && <Text style={styles.errorText}>{errorMsg}</Text>}
+      </View>
+
+      <View style={styles.modeButtonContainer}>
+        <TouchableOpacity
+          style={[
+            styles.modeButton,
+            travelMode === "car" ? styles.activeMode : null,
+          ]}
+          onPress={toggleTravelMode}
+        >
+          <Ionicons
+            name="car"
+            size={20}
+            color={travelMode === "car" ? "#fff" : "#333"}
+          />
+          <Text
+            style={
+              travelMode === "car" ? styles.activeModeText : styles.modeText
+            }
+          >
+            차량
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[
+            styles.modeButton,
+            travelMode === "walking" ? styles.activeMode : null,
+          ]}
+          onPress={toggleTravelMode}
+        >
+          <Ionicons
+            name="walk"
+            size={20}
+            color={travelMode === "walking" ? "#fff" : "#333"}
+          />
+          <Text
+            style={
+              travelMode === "walking" ? styles.activeModeText : styles.modeText
+            }
+          >
+            도보
+          </Text>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.mapContainer}>
@@ -79,6 +148,19 @@ export default function ExploreScreen() {
           showsUserLocation={true}
           showsMyLocationButton={true}
         >
+          {location && (
+            <Circle
+              center={{
+                latitude: location.coords.latitude,
+                longitude: location.coords.longitude,
+              }}
+              radius={travelRadius[travelMode]}
+              strokeWidth={1}
+              strokeColor={"rgba(66, 133, 244, 0.8)"}
+              fillColor={"rgba(66, 133, 244, 0.2)"}
+            />
+          )}
+
           {attractions.map((attraction) => (
             <Marker
               key={attraction.id}
@@ -96,6 +178,13 @@ export default function ExploreScreen() {
             </Marker>
           ))}
         </MapView>
+      </View>
+      <View style={styles.infoContainer}>
+        <Text style={styles.infoText}>
+          {travelMode === "car"
+            ? "Driving Travel mode: Recommend Attractions within 30km"
+            : "Walking Travel mode: Recommend Attractions within 3km"}
+        </Text>
       </View>
     </SafeAreaView>
   );
@@ -125,6 +214,33 @@ const styles = StyleSheet.create({
     color: "red",
     fontSize: 14,
   },
+  modeButtonContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    padding: 10,
+    backgroundColor: "#f5f5f5",
+  },
+  modeButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    marginHorizontal: 8,
+    borderRadius: 20,
+    backgroundColor: "#eee",
+  },
+  activeMode: {
+    backgroundColor: "#4285F4",
+  },
+  modeText: {
+    marginLeft: 6,
+    color: "#333",
+  },
+  activeModeText: {
+    marginLeft: 6,
+    color: "#fff",
+    fontWeight: "bold",
+  },
   mapContainer: {
     flex: 1,
     overflow: "hidden",
@@ -143,6 +259,17 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   calloutDescription: {
+    fontSize: 14,
+  },
+  infoContainer: {
+    padding: 12,
+    backgroundColor: "#f8f9fa",
+    borderTopWidth: 1,
+    borderTopColor: "#e1e4e8",
+  },
+  infoText: {
+    textAlign: "center",
+    color: "#444",
     fontSize: 14,
   },
 });
