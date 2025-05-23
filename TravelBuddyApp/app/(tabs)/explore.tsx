@@ -30,6 +30,44 @@ export default function ExploreScreen() {
     longitudeDelta: 30,
   });
 
+  const calculateDistance = (
+    lat1: number,
+    lon1: number,
+    lat2: number,
+    lon2: number
+  ): number => {
+    const R = 6371;
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLon = ((lon2 - lon1) * Math.PI) / 180;
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = R * c;
+    return distance;
+  };
+
+  const formatDistance = (
+    distanceKm: number,
+    mode: "car" | "walking"
+  ): string => {
+    if (distanceKm < 1) {
+      return `${Math.round(distanceKm * 1000)}m`;
+    } else {
+      const formatted = distanceKm.toFixed(1);
+      if (mode === "walking") {
+        const walkingTime = Math.round(distanceKm * 12);
+        return `${formatted}km (도보 ${walkingTime}분)`;
+      } else {
+        const drivingTime = Math.round(distanceKm * 2);
+        return `${formatted}km (차량 ${drivingTime}분)`;
+      }
+    }
+  };
+
   const [showType, setShowType] = useState<
     "attractions" | "restaurants" | "both"
   >("both");
@@ -37,6 +75,29 @@ export default function ExploreScreen() {
   const travelRadius = {
     car: 30000,
     walking: 3000,
+  };
+
+  const getPlacesWithDistance = (
+    places: any[],
+    userLocation: Location.LocationObject | null
+  ) => {
+    if (!userLocation) return places;
+
+    return places
+      .map((place) => {
+        const distance = calculateDistance(
+          userLocation.coords.latitude,
+          userLocation.coords.longitude,
+          place.coord.latitude,
+          place.coord.longitude
+        );
+        return {
+          ...place,
+          distance,
+          formattedDistance: formatDistance(distance, travelMode),
+        };
+      })
+      .sort((a, b) => a.distance - b.distance);
   };
 
   const attractions = [
@@ -108,6 +169,14 @@ export default function ExploreScreen() {
       description: "애리조나 피닉스의 최고 피자집",
     },
   ];
+
+  const getPlacesInRadius = (places: any[]) => {
+    const radiusKm = travelRadius[travelMode] / 1000;
+    return places.filter((place) => place.distance <= radiusKm);
+  };
+
+  const nearbyAttractions = getPlacesInRadius(attractions);
+  const nearbyRestaurants = getPlacesInRadius(restaurants);
 
   const toggleTravelMode = () => {
     setTravelMode(travelMode === "car" ? "walking" : "car");
@@ -231,7 +300,9 @@ export default function ExploreScreen() {
                 : "#888"
             }
           />
-          <Text style={styles.showTypeText}>관광지</Text>
+          <Text style={styles.showTypeText}>
+            Attractions({nearbyAttractions.length})
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -254,7 +325,9 @@ export default function ExploreScreen() {
                 : "#888"
             }
           />
-          <Text style={styles.showTypeText}>RESTAURANT</Text>
+          <Text style={styles.showTypeText}>
+            RESTAURANT({nearbyRestaurants.length})
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -279,15 +352,19 @@ export default function ExploreScreen() {
           )}
 
           {(showType === "attractions" || showType === "both") &&
-            attractions.map((attraction) => (
+            nearbyAttractions.map((attraction) => (
               <Marker
                 key={`attraction-${attraction.id}`}
                 coordinate={attraction.coord}
                 title={attraction.name}
+                pinColor="blue"
               >
                 <Callout>
                   <View style={styles.calloutContainer}>
                     <Text style={styles.calloutTitle}>{attraction.name}</Text>
+                    <Text style={styles.calloutDistance}>
+                      📍 {attraction.formattedDistance}
+                    </Text>
                     <Text style={styles.calloutDescription}>
                       {attraction.description}
                     </Text>
@@ -297,7 +374,7 @@ export default function ExploreScreen() {
             ))}
 
           {(showType === "restaurants" || showType === "both") &&
-            restaurants.map((restaurant) => (
+            nearbyRestaurants.map((restaurant) => (
               <Marker
                 key={`restaurant-${restaurant.id}`}
                 coordinate={restaurant.coord}
@@ -307,6 +384,9 @@ export default function ExploreScreen() {
                 <Callout>
                   <View style={styles.calloutContainer}>
                     <Text style={styles.calloutTitle}>{restaurant.name}</Text>
+                    <Text style={styles.calloutDistance}>
+                      📍 {restaurant.formattedDistance}
+                    </Text>
                     <Text style={styles.calloutCategory}>
                       {restaurant.category} · ⭐ {restaurant.rating}
                     </Text>
@@ -319,41 +399,6 @@ export default function ExploreScreen() {
             ))}
         </MapView>
       </View>
-
-      {(showType === "restaurants" || showType === "both") && (
-        <View style={styles.legendContainer}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <View style={styles.legendItem}>
-              <View
-                style={[styles.legendColor, { backgroundColor: "purple" }]}
-              />
-              <Text style={styles.legendText}>Fine Dining</Text>
-            </View>
-            <View style={styles.legendItem}>
-              <View style={[styles.legendColor, { backgroundColor: "red" }]} />
-              <Text style={styles.legendText}>Fast Food</Text>
-            </View>
-            <View style={styles.legendItem}>
-              <View
-                style={[styles.legendColor, { backgroundColor: "orange" }]}
-              />
-              <Text style={styles.legendText}>Deli</Text>
-            </View>
-            <View style={styles.legendItem}>
-              <View
-                style={[styles.legendColor, { backgroundColor: "brown" }]}
-              />
-              <Text style={styles.legendText}>BBQ</Text>
-            </View>
-            <View style={styles.legendItem}>
-              <View
-                style={[styles.legendColor, { backgroundColor: "green" }]}
-              />
-              <Text style={styles.legendText}>Italian</Text>
-            </View>
-          </ScrollView>
-        </View>
-      )}
 
       <View style={styles.infoContainer}>
         <Text style={styles.infoText}>
@@ -465,28 +510,12 @@ const styles = StyleSheet.create({
   calloutDescription: {
     fontSize: 14,
   },
-  legendContainer: {
-    flexDirection: "row",
-    backgroundColor: "rgba(255, 255, 255, 0.9)",
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderTopWidth: 1,
-    borderTopColor: "#e1e4e8",
-  },
-  legendItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginRight: 14,
-  },
-  legendColor: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    marginRight: 4,
-  },
-  legendText: {
-    fontSize: 12,
-    color: "#555",
+
+  calloutDistance: {
+    fontSize: 14,
+    color: "#4285F4",
+    fontWeight: "bold",
+    marginBottom: 5,
   },
   infoContainer: {
     padding: 12,
