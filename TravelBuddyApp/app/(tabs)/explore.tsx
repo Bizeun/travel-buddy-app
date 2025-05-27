@@ -15,7 +15,7 @@ import MapView, {
   Circle,
 } from "react-native-maps";
 import * as Location from "expo-location";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 
 export default function ExploreScreen() {
   const [location, setLocation] = useState<Location.LocationObject | null>(
@@ -71,6 +71,8 @@ export default function ExploreScreen() {
   const [showType, setShowType] = useState<
     "attractions" | "restaurants" | "both"
   >("both");
+
+  const [showParking, setShowParking] = useState(true);
 
   const travelRadius = {
     car: 30000,
@@ -170,6 +172,59 @@ export default function ExploreScreen() {
     },
   ];
 
+  const parkingLots = [
+    {
+      id: 1,
+      name: "Union Square Garage",
+      coord: { latitude: 37.7879, longitude: -122.4075 },
+      capacity: 500,
+      hourlyRate: 8,
+      type: "Garage",
+      availability: "Available",
+      walkingRadius: 0.3, // km
+    },
+    {
+      id: 2,
+      name: "Times Square Parking",
+      coord: { latitude: 40.758, longitude: -73.9855 },
+      capacity: 200,
+      hourlyRate: 12,
+      type: "Garage",
+      availability: "Full",
+      walkingRadius: 0.2,
+    },
+    {
+      id: 3,
+      name: "Lincoln Park Zoo Lot",
+      coord: { latitude: 41.9217, longitude: -87.6345 },
+      capacity: 150,
+      hourlyRate: 5,
+      type: "Surface",
+      availability: "Available",
+      walkingRadius: 0.4,
+    },
+    {
+      id: 4,
+      name: "Hollywood & Highland",
+      coord: { latitude: 34.1022, longitude: -118.3387 },
+      capacity: 800,
+      hourlyRate: 10,
+      type: "Garage",
+      availability: "Available",
+      walkingRadius: 0.5,
+    },
+    {
+      id: 5,
+      name: "National Mall Parking",
+      coord: { latitude: 38.8899, longitude: -77.0091 },
+      capacity: 300,
+      hourlyRate: 6,
+      type: "Surface",
+      availability: "Limited",
+      walkingRadius: 0.6,
+    },
+  ];
+
   const getPlacesInRadius = (places: any[]) => {
     const radiusKm = travelRadius[travelMode] / 1000;
     return places.filter((place) => place.distance <= radiusKm);
@@ -223,6 +278,66 @@ export default function ExploreScreen() {
       default:
         return "blue";
     }
+  };
+
+  const findNearbyPlaces = (parkingLot: any, places: any[]) => {
+    return places.filter((place) => {
+      const distance = calculateDistance(
+        parkingLot.coord.latitude,
+        parkingLot.coord.longitude,
+        place.coord.latitude,
+        place.coord.longitude
+      );
+      return distance <= parkingLot.walkingRadius;
+    });
+  };
+
+  const getParkingColor = (availability: string) => {
+    switch (availability) {
+      case "Available":
+        return "#34C759";
+      case "Limited":
+        return "#FF9500";
+      case "Full":
+        return "#FF3B30";
+      default:
+        return "#007AFF";
+    }
+  };
+  const getParkingIcon = (type: string) => {
+    return type === "Garage" ? "parking" : "car";
+  };
+  const nearbyParkingLots = location
+    ? parkingLots
+        .filter((parking) => {
+          const distance = calculateDistance(
+            location.coords.latitude,
+            location.coords.longitude,
+            parking.coord.latitude,
+            parking.coord.longitude
+          );
+          return distance <= travelRadius[travelMode] / 1000;
+        })
+        .map((parking) => {
+          const distance = calculateDistance(
+            location.coords.latitude,
+            location.coords.longitude,
+            parking.coord.latitude,
+            parking.coord.longitude
+          );
+          return {
+            ...parking,
+            distance,
+            formattedDistance: formatDistance(distance, "car"),
+            nearbyAttractions: findNearbyPlaces(parking, nearbyAttractions),
+            nearbyRestaurants: findNearbyPlaces(parking, nearbyRestaurants),
+          };
+        })
+        .sort((a, b) => a.distance - b.distance)
+    : [];
+
+  const toggleParkingDisplay = () => {
+    setShowParking(!showParking);
   };
 
   return (
@@ -329,6 +444,24 @@ export default function ExploreScreen() {
             RESTAURANT({nearbyRestaurants.length})
           </Text>
         </TouchableOpacity>
+        {travelMode === "car" && (
+          <TouchableOpacity
+            style={[
+              styles.showTypeButton,
+              showParking ? styles.activeShowType : null,
+            ]}
+            onPress={toggleParkingDisplay}
+          >
+            <MaterialCommunityIcons
+              name="parking"
+              size={18}
+              color={showParking ? "#4285F4" : "#888"}
+            />
+            <Text style={styles.showTypeText}>
+              주차장 ({nearbyParkingLots.length})
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       <View style={styles.mapContainer}>
@@ -350,6 +483,77 @@ export default function ExploreScreen() {
               fillColor={"rgba(66, 133, 244, 0.2)"}
             />
           )}
+
+          {travelMode === "car" &&
+            showParking &&
+            nearbyParkingLots.map((parking) => (
+              <React.Fragment key={`parking-${parking.id}`}>
+                <Marker coordinate={parking.coord} title={parking.name}>
+                  <View
+                    style={[
+                      styles.parkingMarker,
+                      {
+                        backgroundColor: getParkingColor(parking.availability),
+                      },
+                    ]}
+                  >
+                    <MaterialCommunityIcons
+                      name={getParkingIcon(parking.type)}
+                      size={20}
+                      color="white"
+                    />
+                  </View>
+                  <Callout>
+                    <View style={styles.calloutContainer}>
+                      <Text style={styles.calloutTitle}>{parking.name}</Text>
+                      <Text style={styles.calloutDistance}>
+                        📍 {parking.formattedDistance}
+                      </Text>
+                      <View style={styles.parkingInfo}>
+                        <Text style={styles.parkingDetail}>
+                          💰 ${parking.hourlyRate}/시간
+                        </Text>
+                        <Text style={styles.parkingDetail}>
+                          🚗 {parking.capacity}대
+                        </Text>
+                        <Text
+                          style={[
+                            styles.parkingStatus,
+                            { color: getParkingColor(parking.availability) },
+                          ]}
+                        >
+                          {parking.availability}
+                        </Text>
+                      </View>
+                      {(parking.nearbyAttractions.length > 0 ||
+                        parking.nearbyRestaurants.length > 0) && (
+                        <View style={styles.nearbyInfo}>
+                          <Text style={styles.nearbyTitle}>도보 거리 내:</Text>
+                          {parking.nearbyAttractions.length > 0 && (
+                            <Text style={styles.nearbyText}>
+                              🏛️ 관광지 {parking.nearbyAttractions.length}개
+                            </Text>
+                          )}
+                          {parking.nearbyRestaurants.length > 0 && (
+                            <Text style={styles.nearbyText}>
+                              🍽️ 음식점 {parking.nearbyRestaurants.length}개
+                            </Text>
+                          )}
+                        </View>
+                      )}
+                    </View>
+                  </Callout>
+                </Marker>
+
+                <Circle
+                  center={parking.coord}
+                  radius={parking.walkingRadius * 1000}
+                  strokeWidth={1}
+                  strokeColor={"rgba(52, 199, 89, 0.5)"}
+                  fillColor={"rgba(52, 199, 89, 0.1)"}
+                />
+              </React.Fragment>
+            ))}
 
           {(showType === "attractions" || showType === "both") &&
             nearbyAttractions.map((attraction) => (
@@ -399,6 +603,31 @@ export default function ExploreScreen() {
             ))}
         </MapView>
       </View>
+
+      {travelMode === "car" && showParking && nearbyParkingLots.length > 0 && (
+        <View style={styles.legendContainer}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <View style={styles.legendItem}>
+              <View
+                style={[styles.legendColor, { backgroundColor: "#34C759" }]}
+              />
+              <Text style={styles.legendText}>Available</Text>
+            </View>
+            <View style={styles.legendItem}>
+              <View
+                style={[styles.legendColor, { backgroundColor: "#FF9500" }]}
+              />
+              <Text style={styles.legendText}>Limited</Text>
+            </View>
+            <View style={styles.legendItem}>
+              <View
+                style={[styles.legendColor, { backgroundColor: "#FF3B30" }]}
+              />
+              <Text style={styles.legendText}>Full</Text>
+            </View>
+          </ScrollView>
+        </View>
+      )}
 
       <View style={styles.infoContainer}>
         <Text style={styles.infoText}>
@@ -527,5 +756,71 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "#444",
     fontSize: 14,
+  },
+  parkingMarker: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: "white",
+  },
+  parkingInfo: {
+    marginTop: 5,
+    marginBottom: 5,
+  },
+  parkingDetail: {
+    fontSize: 13,
+    marginBottom: 2,
+  },
+  parkingStatus: {
+    fontSize: 13,
+    fontWeight: "bold",
+  },
+  nearbyInfo: {
+    marginTop: 8,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: "#eee",
+  },
+  nearbyTitle: {
+    fontSize: 13,
+    fontWeight: "bold",
+    marginBottom: 3,
+  },
+  nearbyText: {
+    fontSize: 12,
+    color: "#666",
+    marginBottom: 1,
+  },
+  parkingTip: {
+    fontSize: 12,
+    color: "#34C759",
+    fontStyle: "italic",
+    marginTop: 5,
+  },
+  legendContainer: {
+    flexDirection: "row",
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderTopWidth: 1,
+    borderTopColor: "#e1e4e8",
+  },
+  legendItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginRight: 14,
+  },
+  legendColor: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginRight: 4,
+  },
+  legendText: {
+    fontSize: 12,
+    color: "#555",
   },
 });
