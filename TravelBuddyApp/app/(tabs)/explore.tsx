@@ -7,6 +7,7 @@ import {
   Dimensions,
   TouchableOpacity,
   ScrollView,
+  Alert,
 } from "react-native";
 import MapView, {
   PROVIDER_GOOGLE,
@@ -16,6 +17,8 @@ import MapView, {
 } from "react-native-maps";
 import * as Location from "expo-location";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { TravelModeToggle } from "../../src/components";
 
 export default function ExploreScreen() {
   const [location, setLocation] = useState<Location.LocationObject | null>(
@@ -73,6 +76,8 @@ export default function ExploreScreen() {
   >("both");
 
   const [showParking, setShowParking] = useState(true);
+  const [favorites, setFavorites] = useState<string[]>([]);
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
   const travelRadius = {
     car: 30000,
@@ -241,6 +246,90 @@ export default function ExploreScreen() {
     setShowType(type);
   };
 
+  const loadFavorites = async () => {
+    try {
+      const savedFavorites = await AsyncStorage.getItem("travel_favorites");
+      if (savedFavorites) {
+        setFavorites(JSON.parse(savedFavorites));
+      }
+    } catch (error) {
+      console.error("Favorite Load fail:", error);
+    }
+  };
+
+  const saveFavorites = async (newFavorites: string[]) => {
+    try {
+      await AsyncStorage.setItem(
+        "travel_favorites",
+        JSON.stringify(newFavorites)
+      );
+      setFavorites(newFavorites);
+    } catch (error) {
+      console.error("Favorite storage fail:", error);
+    }
+  };
+
+  const toggleFavorite = async (
+    placeId: string,
+    placeName: string,
+    type: "attraction" | "restaurant"
+  ) => {
+    const favoriteId = `${type}-${placeId}`;
+    const isFavorite = favorites.includes(favoriteId);
+
+    let newFavorites;
+    if (isFavorite) {
+      newFavorites = favorites.filter((id) => id !== favoriteId);
+      Alert.alert(
+        "즐겨찾기 제거",
+        `${placeName}을(를) 즐겨찾기에서 제거했습니다.`
+      );
+    } else {
+      newFavorites = [...favorites, favoriteId];
+      Alert.alert(
+        "즐겨찾기 추가",
+        `${placeName}을(를) 즐겨찾기에 추가했습니다.`
+      );
+    }
+
+    await saveFavorites(newFavorites);
+  };
+
+  const isFavorite = (
+    placeId: string,
+    type: "attraction" | "restaurant"
+  ): boolean => {
+    const favoriteId = `${type}-${placeId}`;
+    return favorites.includes(favoriteId);
+  };
+
+  const getFilteredPlaces = (
+    places: any[],
+    type: "attraction" | "restaurant"
+  ) => {
+    if (showFavoritesOnly) {
+      return places.filter((place) => isFavorite(place.id.toString(), type));
+    }
+    return places;
+  };
+
+  const filteredAttractions = getFilteredPlaces(
+    nearbyAttractions,
+    "attraction"
+  );
+  const filteredRestaurants = getFilteredPlaces(
+    nearbyRestaurants,
+    "restaurant"
+  );
+
+  const toggleFavoritesOnly = () => {
+    setShowFavoritesOnly(!showFavoritesOnly);
+  };
+
+  useEffect(() => {
+    loadFavorites();
+  }, []);
+
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -346,53 +435,18 @@ export default function ExploreScreen() {
         <Text style={styles.title}>Explore around</Text>
         <Text style={styles.subtitle}>
           {travelMode === "car" ? "Driving Travel mode" : "Walking Travel mode"}
+          {showFavoritesOnly && " (only favorites)"}
         </Text>
         {errorMsg && <Text style={styles.errorText}>{errorMsg}</Text>}
       </View>
 
-      <View style={styles.modeButtonContainer}>
-        <TouchableOpacity
-          style={[
-            styles.modeButton,
-            travelMode === "car" ? styles.activeMode : null,
-          ]}
-          onPress={toggleTravelMode}
-        >
-          <Ionicons
-            name="car"
-            size={20}
-            color={travelMode === "car" ? "#fff" : "#333"}
-          />
-          <Text
-            style={
-              travelMode === "car" ? styles.activeModeText : styles.modeText
-            }
-          >
-            CAR
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.modeButton,
-            travelMode === "walking" ? styles.activeMode : null,
-          ]}
-          onPress={toggleTravelMode}
-        >
-          <Ionicons
-            name="walk"
-            size={20}
-            color={travelMode === "walking" ? "#fff" : "#333"}
-          />
-          <Text
-            style={
-              travelMode === "walking" ? styles.activeModeText : styles.modeText
-            }
-          >
-            WALK
-          </Text>
-        </TouchableOpacity>
-      </View>
+      <TravelModeToggle
+        travelMode={travelMode}
+        showFavoritesOnly={showFavoritesOnly}
+        favoritesCount={favorites.length}
+        onToggleTravelMode={toggleTravelMode}
+        onToggleFavorites={toggleFavoritesOnly}
+      />
 
       <View style={styles.showTypeContainer}>
         <TouchableOpacity
@@ -444,6 +498,7 @@ export default function ExploreScreen() {
             RESTAURANT({nearbyRestaurants.length})
           </Text>
         </TouchableOpacity>
+
         {travelMode === "car" && (
           <TouchableOpacity
             style={[
@@ -563,9 +618,47 @@ export default function ExploreScreen() {
                 title={attraction.name}
                 pinColor="blue"
               >
+                <View style={styles.markerContainer}>
+                  <View
+                    style={[styles.customMarker, { backgroundColor: "blue" }]}
+                  >
+                    <Ionicons name="compass" size={16} color="white" />
+                  </View>
+                  {isFavorite(attraction.id.toString(), "attraction") && (
+                    <View style={styles.favoriteIndicator}>
+                      <Ionicons name="heart" size={12} color="#FF3B30" />
+                    </View>
+                  )}
+                </View>
                 <Callout>
                   <View style={styles.calloutContainer}>
-                    <Text style={styles.calloutTitle}>{attraction.name}</Text>
+                    <View style={styles.calloutHeader}>
+                      <Text style={styles.calloutTitle}>{attraction.name}</Text>
+                      <TouchableOpacity
+                        onPress={() =>
+                          toggleFavorite(
+                            attraction.id.toString(),
+                            attraction.name,
+                            "attraction"
+                          )
+                        }
+                        style={styles.favoriteButton}
+                      >
+                        <Ionicons
+                          name={
+                            isFavorite(attraction.id.toString(), "attraction")
+                              ? "heart"
+                              : "heart-outline"
+                          }
+                          size={20}
+                          color={
+                            isFavorite(attraction.id.toString(), "attraction")
+                              ? "#FF3B30"
+                              : "#666"
+                          }
+                        />
+                      </TouchableOpacity>
+                    </View>
                     <Text style={styles.calloutDistance}>
                       📍 {attraction.formattedDistance}
                     </Text>
@@ -583,11 +676,51 @@ export default function ExploreScreen() {
                 key={`restaurant-${restaurant.id}`}
                 coordinate={restaurant.coord}
                 title={restaurant.name}
-                pinColor={getMarkerColor(restaurant.category)}
               >
+                <View style={styles.markerContainer}>
+                  <View
+                    style={[
+                      styles.customMarker,
+                      { backgroundColor: getMarkerColor(restaurant.category) },
+                    ]}
+                  >
+                    <Ionicons name="restaurant" size={16} color="white" />
+                  </View>
+                  {isFavorite(restaurant.id.toString(), "restaurant") && (
+                    <View style={styles.favoriteIndicator}>
+                      <Ionicons name="heart" size={12} color="#FF3B30" />
+                    </View>
+                  )}
+                </View>
                 <Callout>
                   <View style={styles.calloutContainer}>
-                    <Text style={styles.calloutTitle}>{restaurant.name}</Text>
+                    <View style={styles.calloutHeader}>
+                      <Text style={styles.calloutTitle}>{restaurant.name}</Text>
+                      <TouchableOpacity
+                        onPress={() =>
+                          toggleFavorite(
+                            restaurant.id.toString(),
+                            restaurant.name,
+                            "restaurant"
+                          )
+                        }
+                        style={styles.favoriteButton}
+                      >
+                        <Ionicons
+                          name={
+                            isFavorite(restaurant.id.toString(), "restaurant")
+                              ? "heart"
+                              : "heart-outline"
+                          }
+                          size={20}
+                          color={
+                            isFavorite(restaurant.id.toString(), "restaurant")
+                              ? "#FF3B30"
+                              : "#666"
+                          }
+                        />
+                      </TouchableOpacity>
+                    </View>
                     <Text style={styles.calloutDistance}>
                       📍 {restaurant.formattedDistance}
                     </Text>
@@ -629,6 +762,18 @@ export default function ExploreScreen() {
         </View>
       )}
 
+      {favorites.length > 0 && (
+        <View style={styles.favoritesStatsContainer}>
+          <Text style={styles.favoritesStatsText}>
+            💝 총 {favorites.length}개 장소를 즐겨찾기에 저장했습니다
+            {showFavoritesOnly &&
+              ` (현재 ${
+                filteredAttractions.length + filteredRestaurants.length
+              }개 표시 중)`}
+          </Text>
+        </View>
+      )}
+
       <View style={styles.infoContainer}>
         <Text style={styles.infoText}>
           {travelMode === "car"
@@ -663,33 +808,6 @@ const styles = StyleSheet.create({
   errorText: {
     color: "red",
     fontSize: 14,
-  },
-  modeButtonContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    padding: 10,
-    backgroundColor: "#f5f5f5",
-  },
-  modeButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    marginHorizontal: 8,
-    borderRadius: 20,
-    backgroundColor: "#eee",
-  },
-  activeMode: {
-    backgroundColor: "#4285F4",
-  },
-  modeText: {
-    marginLeft: 6,
-    color: "#333",
-  },
-  activeModeText: {
-    marginLeft: 6,
-    color: "#fff",
-    fontWeight: "bold",
   },
   showTypeContainer: {
     flexDirection: "row",
@@ -822,5 +940,51 @@ const styles = StyleSheet.create({
   legendText: {
     fontSize: 12,
     color: "#555",
+  },
+  markerContainer: {
+    alignItems: "center",
+  },
+  customMarker: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: "white",
+  },
+  favoriteIndicator: {
+    position: "absolute",
+    top: -5,
+    right: -5,
+    backgroundColor: "white",
+    borderRadius: 10,
+    width: 20,
+    height: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#FF3B30",
+  },
+  calloutHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 5,
+  },
+  favoriteButton: {
+    padding: 5,
+  },
+  favoritesStatsContainer: {
+    padding: 10,
+    backgroundColor: "#E8F4FD",
+    borderTopWidth: 1,
+    borderTopColor: "#B3E5FC",
+  },
+  favoritesStatsText: {
+    textAlign: "center",
+    fontSize: 13,
+    color: "#1976D2",
+    fontWeight: "500",
   },
 });
