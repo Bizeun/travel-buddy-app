@@ -1,88 +1,58 @@
-# Travel Buddy 🗺️
+# Travel Buddy App
 
-A personalized travel recommendation app for the United States, designed for both car and walking travelers. Built with React Native and Expo, this app provides tailored recommendations based on your travel mode and considers important factors like parking availability and walking distances.
+## 🗺️ Project Overview
 
-## 🚀 Project Overview
+**Travel Buddy App** is a mobile application designed to help users easily discover nearby tourist attractions and restaurants. It provides a map-based visual interface centered on the user's current location, with features for filtering places and managing a list of favorites.
 
-Travel Buddy aims to solve the common problem travelers face when exploring new places: finding suitable attractions and restaurants that match their transportation method and physical capabilities. Whether you're road-tripping across America or exploring a city on foot, this app provides personalized recommendations within your preferred travel radius.
+A primary focus of this project has been **refactoring**, transforming an initially complex codebase into a modular, maintainable, and scalable architecture.
 
-## ✨ Features
+## ✨ Key Features (Post-Refactoring)
 
-### Currently Implemented
-- [x] **Interactive Map Display** - View attractions and restaurants on an interactive map
-- [x] **Travel Mode Toggle** - Switch between car (30km radius) and walking (3km radius) modes
-- [x] **Location-based Services** - GPS integration for current location tracking
-- [x] **Attraction Markers** - Display famous US landmarks and tourist destinations
-- [x] **Restaurant Categorization** - Color-coded markers for different restaurant types
-- [x] **Filter Options** - Toggle between attractions, restaurants, or both
-- [x] **Visual Radius Indicator** - See your travel range with circle overlay
+- **Map-Based Discovery**: Displays attractions and restaurants as markers on an interactive map centered on the user's current location.
+- **Dynamic Radius**: Shows a visual circle on the map indicating the explorable radius, which changes based on the selected mode of travel (car/walking).
+- **Real-Time Filtering**: Allows users to selectively view attractions, restaurants, or both.
+- **Custom Markers & Callouts**: Differentiates place types with distinct marker colors and provides detailed information through custom callouts upon marker selection.
+- **Modularized Core Logic**:
+  - **Custom Hooks**: Reusable logic, such as location tracking (`useLocation`) and favorites management (`useFavorites`), has been extracted into custom hooks to enhance reusability.
+  - **Componentization**: UI elements like map markers, info panels, and filter buttons have been broken down into individual components, reducing complexity and improving readability.
+  - **Centralized Type-Safety**: TypeScript interfaces and types are centralized in `types/index.ts` to ensure data consistency across the application.
 
-### Planned Features
-- [ ] **Real-time API Integration** - Connect with Google Places API and Yelp API
-- [ ] **Parking Information** - Display parking availability and costs for car travelers
-- [ ] **Route Planning** - Calculate optimal routes between multiple destinations
-- [ ] **User Reviews & Ratings** - Community-driven location reviews
-- [ ] **Offline Mode** - Access saved locations without internet connection
-- [ ] **Weather Integration** - Weather-based activity recommendations
-- [ ] **Personal Itinerary** - Save and organize your travel plans
+## 🛠️ Tech Stack
 
-## 🛠️ Technology Stack
-
-- **Frontend**: React Native with Expo
-- **Maps**: React Native Maps (Google Maps integration)
-- **Location Services**: Expo Location
-- **State Management**: React Hooks
-- **UI Components**: React Native Elements
-- **Icons**: Expo Vector Icons
+- **Cross-Platform**: React Native, Expo
 - **Language**: TypeScript
-
-## 📱 Screenshots
-
-*Screenshots will be added as the app development progresses*
+- **State Management**: React Hooks (`useState`, `useMemo`)
+- **Mapping**: `react-native-maps`
+- **Location**: `expo-location`
+- **Local Storage**: `@react-native-async-storage/async-storage` (for Favorites feature)
+- **Task Management**: `task-master-ai` (for project management and automation)
 
 ## 🚀 Getting Started
 
-### Installation
+1.  **Clone the repository**:
+    ```bash
+    git clone https://github.com/your-username/travel-buddy-app.git
+    cd travel-buddy-app/TravelBuddyApp
+    ```
 
-1. Clone the repository
-```bash
-git clone https://github.com/yourusername/travel-buddy-app.git
-cd travel-buddy-app/TravelBuddyApp
-```
+2.  **Install dependencies**:
+    ```bash
+    npm install
+    ```
 
-2. Install dependencies
-```bash
-npm install
-```
+3.  **Run the application**:
+    ```bash
+    npm run start
+    ```
+    - Scan the QR code with the Expo Go app or run on a simulator (iOS/Android) to view the app.
 
-3. Install required Expo packages
-```bash
-npx expo install react-native-maps expo-location @expo/vector-icons
-```
+## Next Steps
 
-4. Start the development server
-```bash
-npx expo start
-```
+- Implement User Authentication (e.g., social login)
+- Integrate with a Backend Server (Firebase/Supabase or Node.js)
+- Develop a Detailed Place Information Screen
+- Add User Reviews and Ratings Functionality
 
-## 📈 Development Progress
+---
 
-This project follows a "15 minutes daily" development approach, focusing on consistent, incremental progress.
-
-### Development Log
-- **Day 1**: Project setup and basic UI structure
-- **Day 2**: Google Maps integration and basic map display
-- **Day 3**: Location services and user positioning
-- **Day 4**: Travel mode toggle functionality (car vs. walking)
-- **Day 5**: Restaurant and attraction markers with categorization
-
-*Daily progress updates will be documented in commit messages*
-
-## 🎯 Learning Goals
-
-- Master React Native development patterns
-- Integrate real-world APIs (Google Places, Yelp)
-- Implement location-based services
-- Practice TypeScript in mobile development
-- Build a portfolio-worthy application
-- Maintain consistent development habits
+This README effectively documents the project's current state and enhances its value as a portfolio piece.

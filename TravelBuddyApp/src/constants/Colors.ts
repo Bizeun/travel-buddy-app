@@ -14,6 +14,9 @@ export const Colors = {
     icon: '#687076',
     tabIconDefault: '#687076',
     tabIconSelected: tintColorLight,
+    primary: '#4285F4', // Google Blue for attractions
+    secondary: '#34A853', // Google Green for restaurants
+    tertiary: '#FBBC05', // Google Yellow for parking
   },
   dark: {
     text: '#ECEDEE',
@@ -22,5 +25,8 @@ export const Colors = {
     icon: '#9BA1A6',
     tabIconDefault: '#9BA1A6',
     tabIconSelected: tintColorDark,
+    primary: '#8ab4f8',
+    secondary: '#81c995',
+    tertiary: '#fdd663',
   },
 };
