@@ -15,7 +15,7 @@
         "NSLocationWhenInUseUsageDescription": "We need your location to show you the map and find places around you."
       },
       "config": {
-        "googleMapsApiKey": "AIzaSyDIqO6U_lidINviY9pNxYO-UCnzNdQ4goo"
+        "googleMapsApiKey": "${EXPO_PUBLIC_GOOGLE_API_KEY}"
       }
     },
     
@@ -26,7 +26,7 @@
       },
       "edgeToEdgeEnabled": true,
       "config": {
-        "googleMapsApiKey": "AIzaSyDIqO6U_lidINviY9pNxYO-UCnzNdQ4goo"
+        "googleMapsApiKey": "${EXPO_PUBLIC_GOOGLE_API_KEY}"
       }
     },
     "web": {
