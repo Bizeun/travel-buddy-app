@@ -31,11 +31,11 @@ export default function ExploreScreen() {
       prev.includes(filter) ? prev.filter((f) => f !== filter) : [...prev, filter]
     );
   };
-  
+
   const allPlaces = useMemo((): Place[] => {
     const combined: Place[] = [...attractions, ...restaurants];
     return combined.map((place) => ({
-      ...place,
+          ...place,
       isFavorite: isFavorite(String(place.id)),
     }));
   }, [isFavorite]);
@@ -55,7 +55,7 @@ export default function ExploreScreen() {
 
   const isRestaurant = (place: Place): place is Restaurant => {
     return 'category' in place;
-  }
+    }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -89,7 +89,7 @@ export default function ExploreScreen() {
           onFilterChange={handleFilterChange}
         />
       </View>
-      
+
       {selectedPlace ? (
          <CustomCallout
           title={selectedPlace.name}

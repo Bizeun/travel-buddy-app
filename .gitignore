@@ -152,6 +152,8 @@ dev-debug.log
 # tasks.json
 # tasks/ 
 
+.TECHNICAL_INTERVIEW_PREP.md
+
 # Tooling
 .cursor/
 .taskmaster/

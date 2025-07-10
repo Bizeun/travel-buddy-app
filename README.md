@@ -30,18 +30,18 @@ A primary focus of this project has been **refactoring**, transforming an initia
 ## 🚀 Getting Started
 
 1.  **Clone the repository**:
-    ```bash
+```bash
     git clone https://github.com/your-username/travel-buddy-app.git
-    cd travel-buddy-app/TravelBuddyApp
-    ```
+cd travel-buddy-app/TravelBuddyApp
+```
 
 2.  **Install dependencies**:
-    ```bash
-    npm install
-    ```
+```bash
+npm install
+```
 
 3.  **Run the application**:
-    ```bash
+```bash
     npm run start
     ```
     - Scan the QR code with the Expo Go app or run on a simulator (iOS/Android) to view the app.

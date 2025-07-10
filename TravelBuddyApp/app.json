@@ -9,14 +9,25 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.anonymous.TravelBuddyApp",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "We need your location to show you the map and find places around you."
+      },
+      "config": {
+        "googleMapsApiKey": "AIzaSyDIqO6U_lidINviY9pNxYO-UCnzNdQ4goo"
+      }
     },
+    
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "config": {
+        "googleMapsApiKey": "AIzaSyDIqO6U_lidINviY9pNxYO-UCnzNdQ4goo"
+      }
     },
     "web": {
       "bundler": "metro",
