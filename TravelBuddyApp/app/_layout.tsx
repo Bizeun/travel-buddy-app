@@ -13,13 +13,10 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
   useEffect(() => {
+
     if (loading) return;
 
-    if (!session) {
-      // Redirect to the login page if the user is not authenticated.
-      router.replace('/(auth)/login' as any);
-    } else {
-      // Redirect to the main app page if the user is authenticated.
+    if (session) {
       router.replace('/(tabs)');
     }
   }, [session, loading, router]);

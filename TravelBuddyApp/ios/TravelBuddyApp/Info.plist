@@ -35,7 +35,7 @@
     <key>CFBundleVersion</key>
     <string>1</string>
     <key>GMSApiKey</key>
-    <string>AIzaSyDIqO6U_lidINviY9pNxYO-UCnzNdQ4goo</string>
+    <string>${EXPO_PUBLIC_GOOGLE_API_KEY}</string>
     <key>LSMinimumSystemVersion</key>
     <string>12.0</string>
     <key>LSRequiresIPhoneOS</key>

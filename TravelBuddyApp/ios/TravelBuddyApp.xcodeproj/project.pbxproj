@@ -7,26 +7,26 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0A2B5B11C1C0CDE2EE715886 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 5350DB57E8797A2E578DB0F5 /* PrivacyInfo.xcprivacy */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		822620B94008C44ACF2E27CF /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B4E536F5CDFEE247295B5A1 /* ExpoModulesProvider.swift */; };
-		89FACCE94A928D4A8E75D38A /* libPods-TravelBuddyApp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B0592940FE133980F8333854 /* libPods-TravelBuddyApp.a */; };
+		68E1CBCBBB7388D458B13006 /* libPods-TravelBuddyApp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8AD36D61BA551F001FFD4D42 /* libPods-TravelBuddyApp.a */; };
+		75AEB6E71A986864B502C76E /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = B418E5E08C173BDEECF00BC7 /* PrivacyInfo.xcprivacy */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
+		EADBC2D6DF99A7A5FFB70C36 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2EA71DA9B41B15A11E6DA81 /* ExpoModulesProvider.swift */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		0A4AC5324748C8406A07BA16 /* Pods-TravelBuddyApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TravelBuddyApp.release.xcconfig"; path = "Target Support Files/Pods-TravelBuddyApp/Pods-TravelBuddyApp.release.xcconfig"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* TravelBuddyApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TravelBuddyApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = TravelBuddyApp/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = TravelBuddyApp/Info.plist; sourceTree = "<group>"; };
-		1B4E536F5CDFEE247295B5A1 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-TravelBuddyApp/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
-		5350DB57E8797A2E578DB0F5 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = TravelBuddyApp/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		78774A80C94512CC65AD9D40 /* Pods-TravelBuddyApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TravelBuddyApp.debug.xcconfig"; path = "Target Support Files/Pods-TravelBuddyApp/Pods-TravelBuddyApp.debug.xcconfig"; sourceTree = "<group>"; };
+		8AD36D61BA551F001FFD4D42 /* libPods-TravelBuddyApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-TravelBuddyApp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = TravelBuddyApp/SplashScreen.storyboard; sourceTree = "<group>"; };
-		B0592940FE133980F8333854 /* libPods-TravelBuddyApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-TravelBuddyApp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B418E5E08C173BDEECF00BC7 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = TravelBuddyApp/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
+		C77FB95EE146A79C57572938 /* Pods-TravelBuddyApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TravelBuddyApp.release.xcconfig"; path = "Target Support Files/Pods-TravelBuddyApp/Pods-TravelBuddyApp.release.xcconfig"; sourceTree = "<group>"; };
+		D2EA71DA9B41B15A11E6DA81 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-TravelBuddyApp/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		D6F621E339577534EE53F35E /* Pods-TravelBuddyApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TravelBuddyApp.debug.xcconfig"; path = "Target Support Files/Pods-TravelBuddyApp/Pods-TravelBuddyApp.debug.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = TravelBuddyApp/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* TravelBuddyApp-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "TravelBuddyApp-Bridging-Header.h"; path = "TravelBuddyApp/TravelBuddyApp-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -37,23 +37,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				89FACCE94A928D4A8E75D38A /* libPods-TravelBuddyApp.a in Frameworks */,
+				68E1CBCBBB7388D458B13006 /* libPods-TravelBuddyApp.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		0138CD724C94A80945DC5DAE /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				78774A80C94512CC65AD9D40 /* Pods-TravelBuddyApp.debug.xcconfig */,
-				0A4AC5324748C8406A07BA16 /* Pods-TravelBuddyApp.release.xcconfig */,
-			);
-			name = Pods;
-			path = Pods;
-			sourceTree = "<group>";
-		};
 		13B07FAE1A68108700A75B9A /* TravelBuddyApp */ = {
 			isa = PBXGroup;
 			children = (
@@ -63,7 +53,15 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				5350DB57E8797A2E578DB0F5 /* PrivacyInfo.xcprivacy */,
+				B418E5E08C173BDEECF00BC7 /* PrivacyInfo.xcprivacy */,
+			);
+			name = TravelBuddyApp;
+			sourceTree = "<group>";
+		};
+		216B54E8EA63FF7FA7E9E09F /* TravelBuddyApp */ = {
+			isa = PBXGroup;
+			children = (
+				D2EA71DA9B41B15A11E6DA81 /* ExpoModulesProvider.swift */,
 			);
 			name = TravelBuddyApp;
 			sourceTree = "<group>";
@@ -72,17 +70,9 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				B0592940FE133980F8333854 /* libPods-TravelBuddyApp.a */,
+				8AD36D61BA551F001FFD4D42 /* libPods-TravelBuddyApp.a */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		324F1329CC4F08CD91BFEE38 /* ExpoModulesProviders */ = {
-			isa = PBXGroup;
-			children = (
-				AD4CDBB3C12B809E9083D166 /* TravelBuddyApp */,
-			);
-			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -99,8 +89,8 @@
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				0138CD724C94A80945DC5DAE /* Pods */,
-				324F1329CC4F08CD91BFEE38 /* ExpoModulesProviders */,
+				89BFB1880AE080778E923F0C /* Pods */,
+				BD19C14CE432D69D05144DFE /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -115,12 +105,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		AD4CDBB3C12B809E9083D166 /* TravelBuddyApp */ = {
+		89BFB1880AE080778E923F0C /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				1B4E536F5CDFEE247295B5A1 /* ExpoModulesProvider.swift */,
+				D6F621E339577534EE53F35E /* Pods-TravelBuddyApp.debug.xcconfig */,
+				C77FB95EE146A79C57572938 /* Pods-TravelBuddyApp.release.xcconfig */,
 			);
-			name = TravelBuddyApp;
+			name = Pods;
+			path = Pods;
 			sourceTree = "<group>";
 		};
 		BB2F792B24A3F905000567C9 /* Supporting */ = {
@@ -132,6 +124,14 @@
 			path = TravelBuddyApp/Supporting;
 			sourceTree = "<group>";
 		};
+		BD19C14CE432D69D05144DFE /* ExpoModulesProviders */ = {
+			isa = PBXGroup;
+			children = (
+				216B54E8EA63FF7FA7E9E09F /* TravelBuddyApp */,
+			);
+			name = ExpoModulesProviders;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -140,13 +140,13 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "TravelBuddyApp" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				35C10E4090C3E7C0DC5D2B12 /* [Expo] Configure project */,
+				99A455ED91EDDC89CF42FBD9 /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				47D18F8CEC370F721E94D3F4 /* [CP] Embed Pods Frameworks */,
+				FD986A787D45D5BE4D311353 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -196,7 +196,7 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				0A2B5B11C1C0CDE2EE715886 /* PrivacyInfo.xcprivacy in Resources */,
+				75AEB6E71A986864B502C76E /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -238,43 +238,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		35C10E4090C3E7C0DC5D2B12 /* [Expo] Configure project */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "[Expo] Configure project";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-TravelBuddyApp/expo-configure-project.sh\"\n";
-		};
-		47D18F8CEC370F721E94D3F4 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-TravelBuddyApp/Pods-TravelBuddyApp-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-TravelBuddyApp/Pods-TravelBuddyApp-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */ = {
@@ -321,6 +284,43 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-TravelBuddyApp/Pods-TravelBuddyApp-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
+		99A455ED91EDDC89CF42FBD9 /* [Expo] Configure project */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "[Expo] Configure project";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-TravelBuddyApp/expo-configure-project.sh\"\n";
+		};
+		FD986A787D45D5BE4D311353 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-TravelBuddyApp/Pods-TravelBuddyApp-frameworks.sh",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-TravelBuddyApp/Pods-TravelBuddyApp-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -329,7 +329,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				822620B94008C44ACF2E27CF /* ExpoModulesProvider.swift in Sources */,
+				EADBC2D6DF99A7A5FFB70C36 /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -338,7 +338,7 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 78774A80C94512CC65AD9D40 /* Pods-TravelBuddyApp.debug.xcconfig */;
+			baseConfigurationReference = D6F621E339577534EE53F35E /* Pods-TravelBuddyApp.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -374,7 +374,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 0A4AC5324748C8406A07BA16 /* Pods-TravelBuddyApp.release.xcconfig */;
+			baseConfigurationReference = C77FB95EE146A79C57572938 /* Pods-TravelBuddyApp.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
