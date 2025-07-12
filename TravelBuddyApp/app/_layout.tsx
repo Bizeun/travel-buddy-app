@@ -16,10 +16,14 @@ function RootLayoutNav() {
 
     if (loading) return;
 
-    if (session) {
+    if (!session) {
+      // 세션이 없을 때 로그인 페이지로 보냅니다.
+      router.replace('/(auth)/login'); 
+    } else {
+      // 세션이 있을 때 메인 페이지로 보냅니다.
       router.replace('/(tabs)');
     }
-  }, [session, loading, router]);
+  }, [session, loading]);
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
