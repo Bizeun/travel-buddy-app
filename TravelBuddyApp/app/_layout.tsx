@@ -6,6 +6,14 @@ import 'react-native-reanimated';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { useEffect } from 'react';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { Platform, UIManager } from 'react-native';
+
+if (
+  Platform.OS === "android" &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 function RootLayoutNav() {
   const { session, loading } = useAuth();
@@ -17,10 +25,8 @@ function RootLayoutNav() {
     if (loading) return;
 
     if (!session) {
-      // 세션이 없을 때 로그인 페이지로 보냅니다.
       router.replace('/(auth)/login'); 
     } else {
-      // 세션이 있을 때 메인 페이지로 보냅니다.
       router.replace('/(tabs)');
     }
   }, [session, loading]);

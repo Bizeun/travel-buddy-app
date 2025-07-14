@@ -33,6 +33,7 @@ export const MapMarker: React.FC<MapMarkerProps> = ({ place, onPress, onFavorite
         <CustomCallout
           title={place.name}
           distance={place.distance}
+          description={place.description}
           isFavorite={isFavorite}
           onFavoriteToggle={onFavoriteToggle}
         />

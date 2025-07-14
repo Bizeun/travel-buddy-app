@@ -1,56 +1,115 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect} from "react";
 import { StyleSheet, View, SafeAreaView, Dimensions } from "react-native";
 import MapView, { PROVIDER_GOOGLE, Circle } from "react-native-maps";
+import Constants from 'expo-constants';
 
 import { useLocation } from "@/hooks/useLocation";
 import { useFavorites } from "@/hooks/useFavorites";
-import { Place, FilterType, Restaurant } from "@/types";
+import { Place, FilterType, Restaurant, Attraction } from "@/types";
 
-import { attractions, restaurants } from "@/constants/data";
+// import { attractions, restaurants } from "@/constants/data";
 import { Colors } from "@/constants/Colors";
 
 import TravelModeToggle from "@/components/filters/TravelModeToggle";
 import FilterButtons from "@/components/filters/FilterButtons";
 import MapMarker from "@/components/map/MapMarker";
 import InfoPanel from "@/components/info/InfoPanel";
-import Legend from "@/components/info/Legend";
 import CustomCallout from "@/components/map/CustomCallout";
 
 // Main screen for the application
 export default function ExploreScreen() {
   const [travelMode, setTravelMode] = useState<"car" | "walking">("car");
   const [activeFilters, setActiveFilters] = useState<FilterType[]>(['attractions', 'restaurants']);
-  const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
-  const [showLegend, setShowLegend] = useState(false);
 
   const { location, region } = useLocation(travelMode);
   const { favorites, isFavorite, toggleFavorite } = useFavorites();
+  const [nearbyPlaces, setNearbyPlaces] = useState<Place[]>([]);
+
+  useEffect(() => {
+    if (!location) return;
+
+    const fetchPlacesForType = async (type: FilterType): Promise<Place[]> => {
+      const lat = location.coords.latitude;
+      const lng = location.coords.longitude;
+      const apiKey = Constants.expoConfig?.extra?.googleApiKey;
+      
+      if (!apiKey) {
+        console.error("API key is missing");
+        return [];
+      }
+
+      let googleType: string;
+      switch(type) {
+        case 'attractions':
+          googleType = 'tourist_attraction';
+          break;
+        case 'restaurants':
+          googleType = 'restaurant';
+          break;
+        default:
+          return [];
+      }
+
+      const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=1500&type=${googleType}&key=${apiKey}`;
+      
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.status === 'OK') {
+          return data.results.map((p: any): Place => {
+            const basePlace = {
+              id: p.place_id,
+              name: p.name,
+              coord: {
+                latitude: p.geometry.location.lat,
+                longitude: p.geometry.location.lng,
+              },
+              description: p.vicinity || 'No description available',
+            };
+
+            if (type === 'restaurants') {
+              return {
+                ...basePlace,
+                category: p.types?.[0] || 'Restaurant',
+                rating: p.rating || 0,
+              } as Restaurant;
+            }
+            return basePlace as Attraction;
+          });
+        } else {
+          console.error(`Error fetching ${type}:`, data.status, data.error_message);
+          return [];
+        }
+      } catch (error) {
+        console.error(`Error during fetch for ${type}:`, error);
+        return [];
+      }
+    };
+
+    const fetchAllPlaces = async () => {
+        const promises = activeFilters.map(filter => fetchPlacesForType(filter));
+        const results = await Promise.all(promises);
+        const allPlaces = results.flat();
+
+        const uniquePlaces = Array.from(new Map(allPlaces.map(p => [p.id, p])).values());
+        
+        const placesWithFavorites = uniquePlaces.map(place => ({
+            ...place,
+            isFavorite: isFavorite(place.id) || false,
+        }));
+
+        setNearbyPlaces(placesWithFavorites);
+    };
+    
+    fetchAllPlaces();
+
+  }, [location, activeFilters, isFavorite]);
 
   const handleFilterChange = (filter: FilterType) => {
     setActiveFilters((prev) =>
       prev.includes(filter) ? prev.filter((f) => f !== filter) : [...prev, filter]
     );
-  };
-
-  const allPlaces = useMemo((): Place[] => {
-    const combined: Place[] = [...attractions, ...restaurants];
-    return combined.map((place) => ({
-          ...place,
-      isFavorite: isFavorite(String(place.id)),
-    }));
-  }, [isFavorite]);
-
-  const filteredPlaces = useMemo(() => {
-    return allPlaces.filter(place => {
-      if ('category' in place) {
-        return activeFilters.includes('restaurants');
-      }
-      return activeFilters.includes('attractions');
-    });
-  }, [allPlaces, activeFilters]);
-
-  const handleMarkerPress = (place: Place) => {
-    setSelectedPlace(place);
   };
 
   const isRestaurant = (place: Place): place is Restaurant => {
@@ -68,13 +127,13 @@ export default function ExploreScreen() {
             fillColor="rgba(0, 122, 255, 0.1)"
           />
         )}
-        {filteredPlaces.map((place) => (
+        {nearbyPlaces.map((place) => (
           <MapMarker
-            key={`${place.id}-${place.name}`}
+            key={place.id}
             place={place}
-            onPress={() => handleMarkerPress(place)}
+            onPress={() => {}}
             onFavoriteToggle={() => toggleFavorite({ id: String(place.id), name: place.name, type: isRestaurant(place) ? 'restaurants' : 'attractions'})}
-            isFavorite={isFavorite(String(place.id))}
+            isFavorite={place.isFavorite || false}
           />
         ))}
       </MapView>
@@ -90,22 +149,12 @@ export default function ExploreScreen() {
         />
       </View>
 
-      {selectedPlace ? (
-         <CustomCallout
-          title={selectedPlace.name}
-          distance={selectedPlace.distance}
-          isFavorite={isFavorite(String(selectedPlace.id))}
-          onFavoriteToggle={() => toggleFavorite({ id: String(selectedPlace.id), name: selectedPlace.name, type: isRestaurant(selectedPlace) ? 'restaurants' : 'attractions'})}
-          description={selectedPlace.description}
-        />
-      ) : (
-        <InfoPanel
-          travelMode={travelMode}
-          totalLocations={filteredPlaces.length}
-          favoritesCount={favorites.length}
-          currentRadius={travelMode === 'car' ? 30 : 3}
-        />
-      )}
+      <InfoPanel
+        travelMode={travelMode}
+        totalLocations={nearbyPlaces.length}
+        favoritesCount={favorites.length}
+        currentRadius={travelMode === 'car' ? 30 : 3}
+      />
       
     </SafeAreaView>
   );

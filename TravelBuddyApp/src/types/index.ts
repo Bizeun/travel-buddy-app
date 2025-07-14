@@ -7,7 +7,7 @@ export interface Location {
 }
 
 export interface BasePlace {
-  id: number;
+  id: string;
   name: string;
   coord: {
     latitude: number;
