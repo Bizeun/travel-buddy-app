@@ -1,61 +1,53 @@
 import React from 'react';
-import { StyleSheet, View, Text } from 'react-native';
-import { Marker, Callout } from 'react-native-maps';
-import { MarkerData, Place, Restaurant } from '@/types';
+import { Marker, MarkerPressEvent } from 'react-native-maps';
+import { Place } from '@/types';
+import { IconSymbol, IconSymbolName } from '../ui/IconSymbol';
 import { Colors } from '@/constants/Colors';
-import CustomCallout from './CustomCallout';
-import { useFavorites } from '@/hooks/useFavorites';
+
+// This mapping connects Google Place types to SF Symbol names.
+const PLACE_TYPE_TO_ICON: Record<string, IconSymbolName> = {
+  restaurant: 'fork.knife',
+  cafe: 'cup.and.saucer.fill',
+  bar: 'wineglass.fill',
+  park: 'leaf.fill',
+  museum: 'building.columns.fill',
+  tourist_attraction: 'camera.fill',
+  lodging: 'house.fill',
+  store: 'cart.fill',
+  bakery: 'birthday.cake.fill',
+  art_gallery: 'photo.on.rectangle.angled',
+  point_of_interest: 'mappin.and.ellipse',
+  establishment: 'mappin.and.ellipse',
+  default: 'mappin.and.ellipse',
+};
 
 interface MapMarkerProps {
   place: Place;
   onPress: () => void;
-  onFavoriteToggle: () => void;
-  isFavorite: boolean;
+  isSelected: boolean;
 }
 
-const isRestaurant = (place: Place): place is Restaurant => {
-  return 'category' in place;
-}
+const MapMarker: React.FC<MapMarkerProps> = ({ place, onPress, isSelected }) => {
+  const handlePress = (e: MarkerPressEvent) => {
+    e.stopPropagation();
+    onPress();
+  };
 
-export const MapMarker: React.FC<MapMarkerProps> = ({ place, onPress, onFavoriteToggle, isFavorite }) => {
-  
-  const getMarkerColor = () => {
-    return isRestaurant(place) ? Colors.light.secondary : Colors.light.primary;
+  const getIconName = (): IconSymbolName => {
+    // Use the first type from the place's types array, or 'default'
+    const placeType = place.types?.[0] || 'default';
+    return PLACE_TYPE_TO_ICON[placeType] || PLACE_TYPE_TO_ICON['default'];
   };
 
   return (
-    <Marker
-      coordinate={place.coord}
-      pinColor={getMarkerColor()}
-      onPress={onPress}
-    >
-      <Callout tooltip>
-        <CustomCallout
-          title={place.name}
-          distance={place.distance}
-          description={place.description}
-          isFavorite={isFavorite}
-          onFavoriteToggle={onFavoriteToggle}
-        />
-      </Callout>
+    <Marker coordinate={place.coord} onPress={handlePress}>
+      <IconSymbol
+        name={getIconName()}
+        size={isSelected ? 40 : 30}
+        color={isSelected ? Colors.light.tint : 'black'}
+      />
     </Marker>
   );
 };
 
 export default MapMarker;
-
-const styles = StyleSheet.create({
-    calloutContainer: {
-        backgroundColor: 'white',
-        padding: 10,
-        borderRadius: 10,
-        borderColor: Colors.light.tint,
-        borderWidth: 1,
-        width: 200,
-    },
-    calloutTitle: {
-        fontWeight: 'bold',
-        fontSize: 16,
-        marginBottom: 5,
-    }
-}) 

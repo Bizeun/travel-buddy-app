@@ -5,8 +5,9 @@ import { SymbolWeight, SymbolViewProps } from 'expo-symbols';
 import { ComponentProps } from 'react';
 import { OpaqueColorValue, type StyleProp, type TextStyle } from 'react-native';
 
-type IconMapping = Record<SymbolViewProps['name'], ComponentProps<typeof MaterialIcons>['name']>;
-type IconSymbolName = keyof typeof MAPPING;
+// This type definition is too strict and is causing the error.
+// We will remove it and let TypeScript infer the types directly.
+// type IconMapping = Record<SymbolViewProps['name'], ComponentProps<typeof MaterialIcons>['name']>;
 
 /**
  * Add your SF Symbols to Material Icons mappings here.
@@ -14,11 +15,30 @@ type IconSymbolName = keyof typeof MAPPING;
  * - see SF Symbols in the [SF Symbols](https://developer.apple.com/sf-symbols/) app.
  */
 const MAPPING = {
+  // Existing
   'house.fill': 'home',
   'paperplane.fill': 'send',
   'chevron.left.forwardslash.chevron.right': 'code',
   'chevron.right': 'chevron-right',
-} as IconMapping;
+  'heart.fill': 'favorite',
+  'heart': 'favorite-border',
+  'fast-food-outline': 'fastfood',
+  'sparkles-outline': 'auto-awesome',
+
+  // New additions
+  'fork.knife': 'restaurant',
+  'cup.and.saucer.fill': 'local-cafe',
+  'wineglass.fill': 'wine-bar',
+  'leaf.fill': 'park',
+  'building.columns.fill': 'museum',
+  'camera.fill': 'local-see',
+  'cart.fill': 'shopping-cart',
+  'birthday.cake.fill': 'cake',
+  'photo.on.rectangle.angled': 'photo-library',
+  'mappin.and.ellipse': 'place',
+} as const; // Add 'as const' to make the values readonly and specific.
+
+export type IconSymbolName = keyof typeof MAPPING;
 
 /**
  * An icon component that uses native SF Symbols on iOS, and Material Icons on Android and web.

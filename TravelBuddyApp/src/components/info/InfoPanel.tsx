@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { TravelMode } from '@/types';
 import { Colors } from '@/constants/Colors';
 
@@ -16,8 +17,10 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
   favoritesCount,
   currentRadius,
 }) => {
+
+  const tabBarHeight = useBottomTabBarHeight();
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {bottom: tabBarHeight}]}>
       <View style={styles.statItem}>
         <Text style={styles.statLabel}>Mode</Text>
         <Text style={styles.statValue}>{travelMode.charAt(0).toUpperCase() + travelMode.slice(1)}</Text>
@@ -50,7 +53,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     position: 'absolute',
-    bottom: 0,
     left: 0,
     right: 0,
     borderTopWidth: 1,

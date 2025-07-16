@@ -14,8 +14,13 @@ export interface BasePlace {
     longitude: number;
   };
   description: string;
-  distance?: number;
+  types?: string[];
   isFavorite?: boolean;
+  formatted_address?: string; 
+  rating?: number;
+  opening_hours?: {
+    open_now: boolean;
+  };
 }
 
 export interface Attraction extends BasePlace {}

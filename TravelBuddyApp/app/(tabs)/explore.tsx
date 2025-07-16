@@ -1,6 +1,6 @@
-import React, { useState, useMemo, useEffect} from "react";
-import { StyleSheet, View, SafeAreaView, Dimensions } from "react-native";
-import MapView, { PROVIDER_GOOGLE, Circle } from "react-native-maps";
+import React, { useState, useMemo, useEffect, useRef } from "react";
+import { StyleSheet, View, SafeAreaView, Dimensions, LayoutAnimation } from "react-native";
+import MapView, { PROVIDER_GOOGLE, Circle, Point } from "react-native-maps";
 import Constants from 'expo-constants';
 
 import { useLocation } from "@/hooks/useLocation";
@@ -24,6 +24,11 @@ export default function ExploreScreen() {
   const { location, region } = useLocation(travelMode);
   const { favorites, isFavorite, toggleFavorite } = useFavorites();
   const [nearbyPlaces, setNearbyPlaces] = useState<Place[]>([]);
+  const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
+  const [placeDetails, setPlaceDetails] = useState<Partial<Place> | null>(null);
+  const [calloutPosition, setCalloutPosition] = useState<Point | null>(null);
+
+  const mapRef = useRef<MapView>(null);
 
   useEffect(() => {
     if (!location) return;
@@ -106,6 +111,38 @@ export default function ExploreScreen() {
 
   }, [location, activeFilters, isFavorite]);
 
+  useEffect(() => {
+    if (!selectedPlace) {
+      setPlaceDetails(null); 
+      return;
+    }
+
+    const fetchPlaceDetails = async () => {
+      const apiKey = Constants.expoConfig?.extra?.googleApiKey;
+      if (!apiKey) {
+        console.error("API key is missing");
+        return;
+      }
+      const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${selectedPlace.id}&fields=name,rating,formatted_address,opening_hours&key=${apiKey}`;
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.status === 'OK' && data.result) {
+          setPlaceDetails(data.result);
+          
+        } else {
+          console.error("Error fetching place details:", data.status, data.error_message);
+        }
+      } catch (error) {
+        console.error("Error during fetch for place details:", error);
+      }
+    };
+
+    fetchPlaceDetails();
+  }, [selectedPlace]);
+
   const handleFilterChange = (filter: FilterType) => {
     setActiveFilters((prev) =>
       prev.includes(filter) ? prev.filter((f) => f !== filter) : [...prev, filter]
@@ -116,9 +153,29 @@ export default function ExploreScreen() {
     return 'category' in place;
     }
 
+
+  const handleMarkerPress = async (place: Place) => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setSelectedPlace(place);
+
+    if (mapRef.current) {
+      const point = await mapRef.current.pointForCoordinate(place.coord);
+      setCalloutPosition(point);
+    }
+  };
+
+  const handleMapPress = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setSelectedPlace(null);
+    setCalloutPosition(null);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-      <MapView provider={PROVIDER_GOOGLE} style={styles.map} region={region}>
+      <View style={{flex: 1}}>
+      <MapView 
+        ref={mapRef}
+        provider={PROVIDER_GOOGLE} style={styles.map} region={region} onPress={handleMapPress}>
         {location && (
           <Circle
             center={location.coords}
@@ -131,12 +188,22 @@ export default function ExploreScreen() {
           <MapMarker
             key={place.id}
             place={place}
-            onPress={() => {}}
-            onFavoriteToggle={() => toggleFavorite({ id: String(place.id), name: place.name, type: isRestaurant(place) ? 'restaurants' : 'attractions'})}
-            isFavorite={place.isFavorite || false}
+            onPress={() => handleMarkerPress(place)}
+            isSelected={selectedPlace?.id === place.id}
+          
           />
         ))}
       </MapView>
+        
+      {selectedPlace && calloutPosition && (
+        <View style={[styles.callout, { left: calloutPosition.x - 125, top: calloutPosition.y - 150 }]}>
+          <CustomCallout
+            place={{ ...selectedPlace, ...placeDetails }}
+            isFavorite={isFavorite(selectedPlace.id)}
+            onFavoriteToggle={() => toggleFavorite({ id: selectedPlace.id, name: selectedPlace.name, type: isRestaurant(selectedPlace) ? 'restaurants' : 'attractions' })}
+          />
+        </View>
+      )}
 
       <View style={styles.overlayContainer}>
         <TravelModeToggle
@@ -148,14 +215,15 @@ export default function ExploreScreen() {
           onFilterChange={handleFilterChange}
         />
       </View>
-
-      <InfoPanel
+      {!selectedPlace && (
+        <InfoPanel
         travelMode={travelMode}
         totalLocations={nearbyPlaces.length}
         favoritesCount={favorites.length}
         currentRadius={travelMode === 'car' ? 30 : 3}
       />
-      
+      )}     
+    </View>
     </SafeAreaView>
   );
 }
@@ -164,8 +232,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
   },
   map: {
     width: Dimensions.get("window").width,
@@ -176,5 +242,9 @@ const styles = StyleSheet.create({
     top: 60,
     left: 10,
     right: 10,
+  },
+  callout: {
+    position: 'absolute',
+    zIndex: 10,
   },
 });

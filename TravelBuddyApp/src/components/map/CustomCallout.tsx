@@ -1,45 +1,52 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { Colors } from '@/constants/Colors';
+import { Place } from '@/types';
+import { IconSymbol } from '../ui/IconSymbol';
 
 interface CustomCalloutProps {
-  title: string;
-  description?: string;
-  distance?: number;
+  place: Place;
   isFavorite: boolean;
   onFavoriteToggle: () => void;
   parkingInfo?: string;
 }
 
+
+const isRestaurant = (place: Place): place is Place & { rating: number } => 'rating' in place;
+
 const CustomCallout: React.FC<CustomCalloutProps> = ({
-  title,
-  description,
-  distance,
+  place,
   isFavorite,
   onFavoriteToggle,
-  parkingInfo,
 }) => {
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>{title}</Text>
-        <TouchableOpacity onPress={onFavoriteToggle} style={styles.favoriteButton}>
-          <Ionicons
-            name={isFavorite ? 'heart' : 'heart-outline'}
+        <Text style={styles.title}>{place.name}</Text>
+        <Pressable onPress={onFavoriteToggle} style={styles.favoriteButton}>
+          <IconSymbol
+            name={isFavorite ? 'heart.fill' : 'heart'}
             size={24}
             color={isFavorite ? Colors.light.tint : Colors.light.text}
           />
-        </TouchableOpacity>
+        </Pressable>
       </View>
-      {description && <Text style={styles.description}>{description}</Text>}
-      {distance !== undefined && (
-        <Text style={styles.distance}>
-          Distance: {distance < 1 ? `${Math.round(distance * 1000)} m` : `${distance.toFixed(1)} km`}
-        </Text>
-      )}
-      {parkingInfo && <Text style={styles.parking}>Parking: {parkingInfo}</Text>}
-    </View>
+        {place.rating && (
+          <Text style={styles.details}>Rating: {place.rating}</Text>
+        )}
+        {place.formatted_address && (
+          <Text style={styles.details} numberOfLines={2}>{place.formatted_address}</Text>
+        )}
+        {place.opening_hours && (
+          <Text style={[
+            styles.details, 
+            { color: place.opening_hours.open_now ? 'green' : 'red' }
+          ]}>
+            {place.opening_hours.open_now ? 'Open Now' : 'Closed'}
+          </Text>
+        )}
+      </View>
   );
 };
 
@@ -50,7 +57,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     borderColor: Colors.light.tint,
     borderWidth: 2,
-    width: 250,
+    width: 250,height: 200,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
@@ -72,15 +79,11 @@ const styles = StyleSheet.create({
   favoriteButton: {
     paddingLeft: 10,
   },
-  description: {
+  details: {
     fontSize: 14,
     color: '#666',
-    marginBottom: 8,
-  },
-  distance: {
-    fontSize: 14,
-    color: '#333',
-    marginBottom: 4,
+    marginTop: 4,
+
   },
   parking: {
     fontSize: 14,
