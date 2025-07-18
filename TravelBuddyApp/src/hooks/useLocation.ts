@@ -1,6 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import * as Location from 'expo-location';
 import { TravelMode } from '@/types';
+import { haversineDistance } from '@/utils/distanceCalculator';
+
+const UPDATE_INTERVAL = 10000; // 10 seconds
+const SIGNIFICANT_DISTANCE_THRESHOLD = 500; // 500 meters
 
 export const useLocation = (travelMode: TravelMode) => {
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
@@ -12,8 +16,12 @@ export const useLocation = (travelMode: TravelMode) => {
     longitudeDelta: 30,
   });
 
+  const lastFetchedLocation = useRef<Location.LocationObject | null>(null);
+  const locationSubscription = useRef<Location.LocationSubscription | null>(null);
+
+
   useEffect(() => {
-    (async () => {
+    const startWatching = async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
         setErrorMsg('Permission to access location was denied');
@@ -21,20 +29,60 @@ export const useLocation = (travelMode: TravelMode) => {
       }
 
       try {
-        const currentLocation = await Location.getCurrentPositionAsync({});
-        setLocation(currentLocation);
-        setRegion({
-          latitude: currentLocation.coords.latitude,
-          longitude: currentLocation.coords.longitude,
-          latitudeDelta: travelMode === "car" ? 0.5 : 0.05,
-          longitudeDelta: travelMode === "car" ? 0.5 : 0.05,
-        });
+        locationSubscription.current = await Location.watchPositionAsync(
+          {
+            accuracy: Location.Accuracy.High,
+            timeInterval: UPDATE_INTERVAL,
+            distanceInterval: 100, // receive update every 100 meters
+          },
+          (newLocation) => {
+            if (!lastFetchedLocation.current) {
+                // First location update
+                setLocation(newLocation);
+                setRegion({
+                    latitude: newLocation.coords.latitude,
+                    longitude: newLocation.coords.longitude,
+                    latitudeDelta: travelMode === "car" ? 0.5 : 0.05,
+                    longitudeDelta: travelMode === "car" ? 0.5 : 0.05,
+                });
+                lastFetchedLocation.current = newLocation;
+            } else {
+                const distance = haversineDistance(
+                    { latitude: lastFetchedLocation.current.coords.latitude, longitude: lastFetchedLocation.current.coords.longitude },
+                    { latitude: newLocation.coords.latitude, longitude: newLocation.coords.longitude }
+                );
+
+                if (distance > SIGNIFICANT_DISTANCE_THRESHOLD) {
+                    setLocation(newLocation);
+                    lastFetchedLocation.current = newLocation;
+                }
+            }
+          }
+        );
       } catch (error) {
-        setErrorMsg('Failed to get current location');
+        setErrorMsg('Failed to start watching location');
         console.error(error);
       }
-    })();
-  }, [travelMode]);
+    };
+    
+    startWatching();
+
+    return () => {
+      if (locationSubscription.current) {
+        locationSubscription.current.remove();
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if(location){
+        setRegion(prevRegion => ({
+            ...prevRegion,
+            latitudeDelta: travelMode === "car" ? 0.5 : 0.05,
+            longitudeDelta: travelMode === "car" ? 0.5 : 0.05,
+        }));
+    }
+  }, [travelMode, location]);
 
   return { location, errorMsg, region };
 }; 

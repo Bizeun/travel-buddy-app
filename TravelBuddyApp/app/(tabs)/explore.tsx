@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
-import { StyleSheet, View, SafeAreaView, Dimensions, LayoutAnimation } from "react-native";
+import { StyleSheet, View, SafeAreaView, Dimensions, LayoutAnimation, Button, ActivityIndicator } from "react-native";
 import MapView, { PROVIDER_GOOGLE, Circle, Point } from "react-native-maps";
 import Constants from 'expo-constants';
 
@@ -15,6 +15,7 @@ import FilterButtons from "@/components/filters/FilterButtons";
 import MapMarker from "@/components/map/MapMarker";
 import InfoPanel from "@/components/info/InfoPanel";
 import CustomCallout from "@/components/map/CustomCallout";
+import { getCache, setCache } from "@/utils/cache";
 
 // Main screen for the application
 export default function ExploreScreen() {
@@ -27,75 +28,109 @@ export default function ExploreScreen() {
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
   const [placeDetails, setPlaceDetails] = useState<Partial<Place> | null>(null);
   const [calloutPosition, setCalloutPosition] = useState<Point | null>(null);
+  const [nextPageTokens, setNextPageTokens] = useState<Record<FilterType, string | undefined>>({
+    attractions: undefined,
+    restaurants: undefined,
+    parking: undefined,
+  });
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   const mapRef = useRef<MapView>(null);
 
+  const fetchPlacesForType = async (type: FilterType, pageToken?: string): Promise<{places: Place[], nextToken?: string}> => {
+    if (!location) return { places: [], nextToken: undefined };
+
+    const lat = location.coords.latitude;
+    const lng = location.coords.longitude;
+    const apiKey = Constants.expoConfig?.extra?.googleApiKey;
+    
+    const cacheKey = `${type}_${lat.toFixed(3)}_${lng.toFixed(3)}_${pageToken || ''}`;
+    const cachedData = await getCache<{places: Place[], nextToken?: string}>(cacheKey);
+    if (cachedData) {
+      console.log('Cache hit for', cacheKey);
+      return cachedData;
+    }
+    console.log('Cache miss for', cacheKey);
+
+    if (!apiKey) {
+      console.error("API key is missing");
+      return { places: [], nextToken: undefined };
+    }
+
+    let googleType: string;
+    switch(type) {
+      case 'attractions':
+        googleType = 'tourist_attraction';
+        break;
+      case 'restaurants':
+        googleType = 'restaurant';
+        break;
+      case 'parking':
+          googleType = 'parking';
+          break;
+      default:
+        return { places: [], nextToken: undefined };
+    }
+
+    let url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=1500&type=${googleType}&key=${apiKey}`;
+    if (pageToken) {
+      url += `&pagetoken=${pageToken}`;
+    }
+    
+    try {
+      // Google Places API requires a short delay between pagetoken requests
+      if (pageToken) {
+          await new Promise(resolve => setTimeout(resolve, 2000));
+      }
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (data.status === 'OK') {
+        const result = {
+            places: data.results.map((p: any): Place => {
+                const basePlace = {
+                    id: p.place_id,
+                    name: p.name,
+                    coord: {
+                        latitude: p.geometry.location.lat,
+                        longitude: p.geometry.location.lng,
+                    },
+                    description: p.vicinity || 'No description available',
+                    types: p.types || [],
+                };
+    
+                if (p.types?.includes('restaurant')) {
+                    return {
+                        ...basePlace,
+                        category: p.types?.[0] || 'Restaurant',
+                        rating: p.rating || 0,
+                    } as Restaurant;
+                }
+                return basePlace as Attraction;
+            }) as Place[],
+            nextToken: data.next_page_token
+        };
+        await setCache(cacheKey, result);
+        return result;
+      } else {
+        console.error(`Error fetching ${type}:`, data.status, data.error_message);
+        return { places: [], nextToken: undefined };
+      }
+    } catch (error) {
+      console.error(`Error during fetch for ${type}:`, error);
+      return { places: [], nextToken: undefined };
+    }
+  };
+
   useEffect(() => {
-    if (!location) return;
-
-    const fetchPlacesForType = async (type: FilterType): Promise<Place[]> => {
-      const lat = location.coords.latitude;
-      const lng = location.coords.longitude;
-      const apiKey = Constants.expoConfig?.extra?.googleApiKey;
-      
-      if (!apiKey) {
-        console.error("API key is missing");
-        return [];
-      }
-
-      let googleType: string;
-      switch(type) {
-        case 'attractions':
-          googleType = 'tourist_attraction';
-          break;
-        case 'restaurants':
-          googleType = 'restaurant';
-          break;
-        default:
-          return [];
-      }
-
-      const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=1500&type=${googleType}&key=${apiKey}`;
-      
-      try {
-        const response = await fetch(url);
-        const data = await response.json();
-
-        if (data.status === 'OK') {
-          return data.results.map((p: any): Place => {
-            const basePlace = {
-              id: p.place_id,
-              name: p.name,
-              coord: {
-                latitude: p.geometry.location.lat,
-                longitude: p.geometry.location.lng,
-              },
-              description: p.vicinity || 'No description available',
-            };
-
-            if (type === 'restaurants') {
-              return {
-                ...basePlace,
-                category: p.types?.[0] || 'Restaurant',
-                rating: p.rating || 0,
-              } as Restaurant;
-            }
-            return basePlace as Attraction;
-          });
-        } else {
-          console.error(`Error fetching ${type}:`, data.status, data.error_message);
-          return [];
-        }
-      } catch (error) {
-        console.error(`Error during fetch for ${type}:`, error);
-        return [];
-      }
-    };
-
     const fetchAllPlaces = async () => {
+        setNearbyPlaces([]); // Clear previous results
+        setNextPageTokens({ attractions: undefined, restaurants: undefined, parking: undefined });
+
         const promises = activeFilters.map(filter => fetchPlacesForType(filter));
         const results = await Promise.all(promises);
-        const allPlaces = results.flat();
+        
+        const allPlaces = results.map(r => r.places).flat();
 
         const uniquePlaces = Array.from(new Map(allPlaces.map(p => [p.id, p])).values());
         
@@ -105,11 +140,53 @@ export default function ExploreScreen() {
         }));
 
         setNearbyPlaces(placesWithFavorites);
+
+        const newTokens: Record<FilterType, string | undefined> = { attractions: undefined, restaurants: undefined, parking: undefined };
+        activeFilters.forEach((filter, index) => {
+            newTokens[filter] = results[index].nextToken;
+        });
+        setNextPageTokens(newTokens);
     };
     
-    fetchAllPlaces();
+    if (location) {
+        fetchAllPlaces();
+    }
 
   }, [location, activeFilters, isFavorite]);
+
+  const handleLoadMore = async () => {
+    if (isLoadingMore || !location) return;
+    setIsLoadingMore(true);
+
+    const morePlacesPromises = activeFilters
+        .filter(filter => nextPageTokens[filter])
+        .map(filter => fetchPlacesForType(filter, nextPageTokens[filter]));
+    
+    const results = await Promise.all(morePlacesPromises);
+
+    const newPlaces = results.map(r => r.places).flat();
+    const uniqueNewPlaces = newPlaces.filter(p => !nearbyPlaces.some(existing => existing.id === p.id));
+
+    const placesWithFavorites = uniqueNewPlaces.map(place => ({
+        ...place,
+        isFavorite: isFavorite(place.id) || false,
+    }));
+
+    setNearbyPlaces(prev => [...prev, ...placesWithFavorites]);
+
+    const newTokens: Record<FilterType, string | undefined> = { ...nextPageTokens };
+    let filterIndex = 0;
+    activeFilters.forEach(filter => {
+        if(nextPageTokens[filter]) {
+            newTokens[filter] = results[filterIndex]?.nextToken;
+            filterIndex++;
+        }
+    });
+
+    setNextPageTokens(newTokens);
+    setIsLoadingMore(false);
+  };
+
 
   useEffect(() => {
     if (!selectedPlace) {
@@ -214,6 +291,15 @@ export default function ExploreScreen() {
           activeFilters={activeFilters}
           onFilterChange={handleFilterChange}
         />
+        {Object.values(nextPageTokens).some(token => token) && (
+            <View style={styles.loadMoreContainer}>
+                {isLoadingMore ? (
+                    <ActivityIndicator size="small" color={Colors.light.text} />
+                ) : (
+                    <Button title="Load More" onPress={handleLoadMore} color={Colors.light.tint} />
+                )}
+            </View>
+        )}
       </View>
       {!selectedPlace && (
         <InfoPanel
@@ -242,9 +328,21 @@ const styles = StyleSheet.create({
     top: 60,
     left: 10,
     right: 10,
+    alignItems: 'center',
   },
   callout: {
     position: 'absolute',
     zIndex: 10,
   },
+  loadMoreContainer: {
+    marginTop: 10,
+    padding: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 3,
+  }
 });

@@ -5,9 +5,6 @@ const envPath = path.resolve(__dirname, '../.env');
 
 try {
   dotenv.config({ path: envPath});
-  console.log(`✅ .env file loaded from: ${envPath}`);
-  console.log(`API Key variable is set: ${process.env.EXPO_PUBLIC_GOOGLE_API_KEY ? 'Yes, it exists!' : 'No, it is missing or undefined!'}`);
-  console.log(`API Key found: ${process.env.EXPO_PUBLIC_GOOGLE_API_KEY ? 'Yes' : 'No'}`);
 } catch (e) {
   console.warn('⚠️ Could not load .env file:', e);
 }
