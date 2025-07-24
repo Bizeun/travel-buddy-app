@@ -8,6 +8,10 @@ export type Attraction = {
     description: string;
     isFavorite?: boolean;
     types?: string[];
+    formatted_address?: string;
+    opening_hours?: {
+        open_now: boolean;
+    };
 };
 
 export type Restaurant = {
@@ -22,6 +26,10 @@ export type Restaurant = {
     rating: number;
     isFavorite?: boolean;
     types?: string[];
+    formatted_address?: string;
+    opening_hours?: {
+        open_now: boolean;
+    };
 };
 
 export type Place = Attraction | Restaurant;
@@ -44,7 +52,8 @@ export interface Location {
 }
 
 export interface FavoriteItem {
-  id: string;
+  id: string; // Corresponds to place_id
   name: string;
-  type: FilterType;
+  types: string[];
+  address?: string; // Add optional address field
 } 

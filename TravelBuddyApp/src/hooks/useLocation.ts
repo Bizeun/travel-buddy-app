@@ -39,12 +39,12 @@ export const useLocation = (travelMode: TravelMode) => {
             if (!lastFetchedLocation.current) {
                 // First location update
                 setLocation(newLocation);
-                setRegion({
+        setRegion({
                     latitude: newLocation.coords.latitude,
                     longitude: newLocation.coords.longitude,
-                    latitudeDelta: travelMode === "car" ? 0.5 : 0.05,
-                    longitudeDelta: travelMode === "car" ? 0.5 : 0.05,
-                });
+          latitudeDelta: travelMode === "car" ? 0.5 : 0.05,
+          longitudeDelta: travelMode === "car" ? 0.5 : 0.05,
+        });
                 lastFetchedLocation.current = newLocation;
             } else {
                 const distance = haversineDistance(

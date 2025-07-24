@@ -32,7 +32,7 @@ const CustomCallout: React.FC<CustomCalloutProps> = ({
           />
         </Pressable>
       </View>
-        {place.rating && (
+        {isRestaurant(place) && place.rating && (
           <Text style={styles.details}>Rating: {place.rating}</Text>
         )}
         {place.formatted_address && (
@@ -41,9 +41,9 @@ const CustomCallout: React.FC<CustomCalloutProps> = ({
         {place.opening_hours && (
           <Text style={[
             styles.details, 
-            { color: place.opening_hours.open_now ? 'green' : 'red' }
+            { color: place.opening_hours?.open_now ? 'green' : 'red' }
           ]}>
-            {place.opening_hours.open_now ? 'Open Now' : 'Closed'}
+            {place.opening_hours?.open_now ? 'Open Now' : 'Closed'}
           </Text>
         )}
       </View>

@@ -277,7 +277,14 @@ export default function ExploreScreen() {
           <CustomCallout
             place={{ ...selectedPlace, ...placeDetails }}
             isFavorite={isFavorite(selectedPlace.id)}
-            onFavoriteToggle={() => toggleFavorite({ id: selectedPlace.id, name: selectedPlace.name, type: isRestaurant(selectedPlace) ? 'restaurants' : 'attractions' })}
+            onFavoriteToggle={() => {
+              if (selectedPlace) {
+                toggleFavorite({
+                  ...selectedPlace,
+                  address: placeDetails?.formatted_address,
+                });
+              }
+            }}
           />
         </View>
       )}

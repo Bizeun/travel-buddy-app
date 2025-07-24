@@ -45,7 +45,7 @@ const MapMarker: React.FC<MapMarkerProps> = ({ place, onPress, isSelected }) => 
         name={getIconName()}
         size={isSelected ? 40 : 30}
         color={isSelected ? Colors.light.tint : 'black'}
-      />
+        />
     </Marker>
   );
 };

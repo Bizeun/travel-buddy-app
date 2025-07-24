@@ -22,7 +22,7 @@ const MAPPING = {
   'chevron.right': 'chevron-right',
   'heart.fill': 'favorite',
   'heart': 'favorite-border',
-  'fast-food-outline': 'fastfood',
+  'fast-food-outline': 'fastfood', 
   'sparkles-outline': 'auto-awesome',
 
   // New additions
